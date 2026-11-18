@@ -118,6 +118,7 @@ header::after{content:'';position:absolute;left:0;bottom:-1px;height:1px;width:1
 .bobj{width:var(--bs);height:var(--bs)}
 .bobj .face{border-radius:50%;overflow:hidden}
 .bobj .front img{border-radius:50%}
+body.cap .bobj .front::after{display:none}
 .bobj .front::after{content:'';position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),inset 0 -10px 24px rgba(0,0,0,.28),inset 0 8px 18px rgba(255,255,255,.18)}
 .bobj .sheen{border-radius:50%}
 .bobj .rim{position:absolute;inset:0;border-radius:50%;background:linear-gradient(135deg,#9a9a9a,#e9e9e9 30%,#6f6f6f 60%,#cfcfcf);}
@@ -413,7 +414,7 @@ body.ready .st-top,body.ready .ctl{transition:opacity .9s var(--ease) .35s}
 </div></div>
 
 <header>
-  <div class="brand" onclick="go('badge')" title="처음으로">
+  <div class="brand" onclick="go(ITEMS[0].id)" title="처음으로">
     <img data-a="arch_logo_white.svg" alt="ARCH">
     <span class="wm">ARCH</span><span class="lbl">Supply Depot</span>
   </div>
@@ -563,6 +564,10 @@ const FILES={
     {f:'assets/arch_logo_black.png',d:'ARCH_EMBLEM_BLACK.png',n:'아크 엠블럼 · 블랙',s:'PNG · 투명 배경',th:'assets/arch_logo_black.png',lt:1}]
 };
 const ITEMS=[
+  {id:'pouch',code:'IMPRINT SLEEVE',ko:'각인 슬리브',type:'포카 파우치',tag:'DL',sub:'Sentinel · Guide · Imprint Sleeve',
+   desc:'센티넬과 가이드의 각인 기록을 담는 포카 파우치예요. 속성을 고르면 슬리브의 검은 부분이 그 속성 색으로 바뀌고, 같은 색의 출력용 PSD를 바로 받을 수 있어요. 내 사진을 넣어서 어떻게 보이는지 미리 볼 수도 있어요.',
+   spec:[['Type','지퍼 포카 파우치'],['Color','센티넬 · 가이드 + 속성 7색'],['Card','55 × 85mm 포카'],['File','출력용 PSD (CMYK)']],
+   hint:'Drag photo · Scroll or pinch to zoom · Lock'},
   {id:'badge',code:'AEGIS SIGIL',ko:'아이기스 시길',type:'캔뱃지',tag:'DL',sub:'방패의 문장 · BLACK / WHITE',
    desc:'아크의 방패 문장을 새긴 시길 뱃지 2종이에요. 블랙과 화이트 두 가지 색이 있고, 로고를 벡터로 새로 그려서 어떤 크기로 뽑아도 선명하게 나와요.',
    spec:[['Type','캔뱃지 · 2종'],['Edition','블랙 / 화이트'],['File','PNG 3000px · SVG'],['Size','44 · 58 · 75mm 권장']],
@@ -579,10 +584,6 @@ const ITEMS=[
    desc:'작전 기록 1TB를 담는 아이기스 SD 카드 모양 아크릴 카라비너예요. 게이트를 눌러 열고 닫거나, 드래그해서 흔들어 보세요.',
    spec:[['Type','아크릴 카라비너'],['Motif','SD CARD · 1TB'],['File','PNG 3071px · AI 원본'],['Guide','칼선 · 부자재 포함']],
    hint:'Click gate to open · Drag to swing'},
-  {id:'pouch',code:'IMPRINT SLEEVE',ko:'각인 슬리브',type:'포카 파우치',tag:'DL',sub:'Sentinel · Guide · Imprint Sleeve',
-   desc:'센티넬과 가이드의 각인 기록을 담는 포카 파우치예요. 속성을 고르면 슬리브의 검은 부분이 그 속성 색으로 바뀌고, 같은 색의 출력용 PSD를 바로 받을 수 있어요. 내 사진을 넣어서 어떻게 보이는지 미리 볼 수도 있어요.',
-   spec:[['Type','지퍼 포카 파우치'],['Color','센티넬 · 가이드 + 속성 7색'],['Card','55 × 85mm 포카'],['File','출력용 PSD (CMYK)']],
-   hint:'Drag photo · Scroll or pinch to zoom · Lock'},
   {id:'keycap',code:'COMMAND KEY',ko:'커맨드 키',type:'키캡 키링',tag:'DL',sub:'ARCH Symbol · Command Keycap',
    desc:'지휘 콘솔의 첫 번째 키, 아크 심볼 키캡 키링이에요. 눌러 보면 진짜 키보드처럼 소리가 나고, 속성 색으로 바꿔서 저장할 수 있어요.',
    spec:[['Type','키캡 키링'],['Print','ARCH 심볼'],['Color','블랙 · 화이트 + 속성 7색']],
@@ -635,7 +636,7 @@ function finishBoot(){if(booted)return;booted=true;const b=$('boot');b.classList
   setTimeout(()=>{b.style.display='none';toast('SUPPLY DEPOT ONLINE');logEv('SYSTEM','보급 창고 개방 · 굿즈 파일 열람 가능');},1450);}
 
 /* ═════ NAV ═════ */
-let CUR='badge';
+let CUR='pouch';
 function buildNav(){
   $('menuList').innerHTML=ITEMS.map((it,i)=>`<button class="mi" data-id="${it.id}"><span class="n">${String(i+1).padStart(2,'0')}</span><span class="nm"><b>${it.ko}</b><span>${it.type} · ${it.code}</span></span><span class="tg ${it.tag==='DL'?'dl':''}">${it.tag}</span></button>`).join('');
   $('mnav').innerHTML=ITEMS.map((it,i)=>`<button data-id="${it.id}"><span>${String(i+1).padStart(2,'0')}</span>${it.ko}</button>`).join('');
@@ -915,10 +916,13 @@ function slideCard(){const c=$('pcard'),had=c.classList.contains('in');c.classLi
 const safe=s=>(s||'UNASSIGNED').trim().replace(/[\\/:*?"<>|\s]+/g,'_')||'UNASSIGNED';
 function outBlob(cv,name,hide){cv.toBlob(b=>{if(IS_TOUCH||INAPP||IN_FRAME)openSavePv(b,name,hide);else saveBlob(b,name);flash();toast('SAVED · '+name);},'image/png');}
 async function savePc(){toast('RENDERING CARD');const cv=await drawPc(1300);outBlob(cv,`ARCH_IMPRINT-RECORD_${PC.photo?'PHOTO':'EMBLEM'}.png`);logEv('FILE','카드 저장');}
-async function saveMock(){toast('RENDERING SLEEVE');
+async function saveMock(){toast('RENDERING SLEEVE');const a=PATTRS.find(x=>x.k===PC.attr)||PATTRS[0];const cv=await renderMock(PC.bg);
+  outBlob(cv,`ARCH_IMPRINT-SLEEVE_${a.en}_MOCKUP.png`,true);logEv('FILE','각인 슬리브 저장');}
+const MOCK_PAD=40;
+async function renderMock(bgMode,S=2){
   const a=PATTRS.find(x=>x.k===PC.attr)||PATTRS[0];const [wh,col]=await Promise.all([loadImg('pouch_white.png'),loadImg(`pouch_color_${a.en}.png`)]);
-  const S=2,PAD=40,cv=document.createElement('canvas');cv.width=(SG.VW+PAD*2)*S;cv.height=(SG.VH+PAD*2)*S;const c=cv.getContext('2d');
-  if(PC.bg==='black'){c.fillStyle='#0b0b0d';c.fillRect(0,0,cv.width,cv.height);}else if(PC.bg==='white'){c.fillStyle='#f2f2f0';c.fillRect(0,0,cv.width,cv.height);}
+  const PAD=MOCK_PAD,cv=document.createElement('canvas');cv.width=(SG.VW+PAD*2)*S;cv.height=(SG.VH+PAD*2)*S;const c=cv.getContext('2d');
+  if(bgMode==='black'){c.fillStyle='#0b0b0d';c.fillRect(0,0,cv.width,cv.height);}else if(bgMode==='white'){c.fillStyle='#f2f2f0';c.fillRect(0,0,cv.width,cv.height);}
   c.scale(S,S);c.translate(PAD,PAD);
   const body=new Path2D(SG_BODY+' '+SG_HOLE);c.save();c.clip(body,'evenodd');
   c.fillStyle='rgba(220,226,240,.04)';c.fillRect(0,0,SG.VW,SG.VH);
@@ -933,9 +937,9 @@ async function saveMock(){toast('RENDERING SLEEVE');
   const sh=c.createLinearGradient(80,0,460,0);sh.addColorStop(0,'rgba(255,255,255,0)');sh.addColorStop(.5,'rgba(255,255,255,.084)');sh.addColorStop(1,'rgba(255,255,255,0)');
   c.fillStyle=sh;c.beginPath();c.moveTo(300,0);c.lineTo(470,0);c.lineTo(-10,SG.VH);c.lineTo(-180,SG.VH);c.closePath();c.fill();
   c.restore();
-  c.lineWidth=2.5;c.strokeStyle=PC.bg==='white'?'rgba(30,32,40,.3)':'rgba(255,255,255,.38)';c.stroke(new Path2D(SG_BODY));
-  c.lineWidth=3;c.strokeStyle=(PC.bg==='white'&&acc.startsWith('rgba(255'))?'rgba(30,32,40,.45)':acc;c.beginPath();c.arc(SG.HX,SG.HY,SG.HR,0,Math.PI*2);c.stroke();
-  outBlob(cv,`ARCH_IMPRINT-SLEEVE_${a.en}_MOCKUP.png`,true);logEv('FILE','각인 슬리브 저장');}
+  c.lineWidth=2.5;c.strokeStyle=bgMode==='white'?'rgba(30,32,40,.3)':'rgba(255,255,255,.38)';c.stroke(new Path2D(SG_BODY));
+  c.lineWidth=3;c.strokeStyle=(bgMode==='white'&&acc.startsWith('rgba(255'))?'rgba(30,32,40,.45)':acc;c.beginPath();c.arc(SG.HX,SG.HY,SG.HR,0,Math.PI*2);c.stroke();
+  return cv;}
 
 /* keycap */
 let AC=null;
@@ -990,12 +994,17 @@ stage.addEventListener('mouseleave',()=>{M.x=M.y=-999;});
 
 /* ═════ REC ═════ */
 let CAPTURING=false;
-function captureScreen(){
+async function captureScreen(){
   if(CAPTURING)return;if(typeof html2canvas==='undefined'){toast('CAPTURE UNAVAILABLE');return;}
   CAPTURING=true;toast('CAPTURING SCREEN');
+  let pouchShot=null;if(CUR==='pouch'){try{pouchShot=(await renderMock('clear',2)).toDataURL('image/png');}catch(e){}}
+  const LOGO_PNG=AS('assets/arch_logo_white.png'),LOGO_PNG_B=AS('assets/arch_logo_black.png');
+  document.body.classList.add('cap');
   setTimeout(()=>{html2canvas(document.body,{backgroundColor:'#000',useCORS:true,logging:false,scale:Math.max(2,devicePixelRatio||1),width:innerWidth,height:innerHeight,windowWidth:innerWidth,windowHeight:innerHeight,x:0,y:0,scrollX:0,scrollY:0,
     ignoreElements:el=>['cursor','cur-dot','toast','flash','boot','savePv','pcFile'].includes(el.id),
-    onclone:d=>{const s=d.createElement('style');s.textContent='*{animation:none!important;transition:none!important}.view{perspective:none!important}.obj{transform:none!important}.back,.tag-wait+.x{display:none!important}.sheen{display:none!important}.tpart{transform:none!important}';d.head.appendChild(s);
+    onclone:d=>{const s=d.createElement('style');s.textContent='*{animation:none!important;transition:none!important}.view{perspective:none!important}.obj{transform:none!important}.back,.tag-wait+.x{display:none!important}.sheen{display:none!important}.tpart{transform:none!important}.bobj .front::after,.bobj .rim{display:none!important}.kring{box-shadow:none!important}.kchain{background:#a8a8a8!important}.kobj .kf{box-shadow:0 18px 36px rgba(0,0,0,.6)!important;border-bottom:14px solid rgba(0,0,0,.28)}.kobj.down .kf{border-bottom-width:8px}.kobj .kt{box-shadow:none!important}.pcard{height:auto!important}';d.head.appendChild(s);
+      d.querySelectorAll('img').forEach(im=>{const a=im.getAttribute('data-a')||'';if(/arch_logo_white\.svg$/.test(a))im.src=LOGO_PNG;else if(/arch_logo_black\.svg$/.test(a))im.src=LOGO_PNG_B;});
+      const po=d.getElementById('pouchObj');if(po&&pouchShot){const w=po.offsetWidth||$('pouchObj').offsetWidth,k=w/SG.VW;po.style.filter='none';po.innerHTML=`<img src="${pouchShot}" alt="" style="position:absolute;left:${-MOCK_PAD*k}px;top:${-MOCK_PAD*k}px;width:${(SG.VW+MOCK_PAD*2)*k}px;height:${(SG.VH+MOCK_PAD*2)*k}px;max-width:none">`;}
       const c=d.getElementById('bg');if(c){const ctx=c.getContext('2d');ctx.drawImage(bg,0,0);}
       if(CD.flip||TK.flip||BD.flip){/* show the face the visitor is looking at */
         d.querySelectorAll('.obj').forEach(o=>{const fr=o.querySelectorAll('.front'),bk=o.querySelectorAll('.back');
@@ -1004,7 +1013,7 @@ function captureScreen(){
       const m=d.getElementById('main');if(m)m.scrollTop=$('main').scrollTop;}})
   .then(c=>{const dt=new Date(),p=n=>String(n).padStart(2,'0');c.toBlob(b=>{const name=`ARCH_CAPTURE_${dt.getFullYear()}${p(dt.getMonth()+1)}${p(dt.getDate())}_${p(dt.getHours())}${p(dt.getMinutes())}${p(dt.getSeconds())}.png`;
       if(IS_TOUCH)openSavePv(b,name);else saveBlob(b,name);flash();toast('CAPTURE SAVED');},'image/png');})
-  .catch(e=>{console.error(e);toast('CAPTURE FAILED');}).finally(()=>{CAPTURING=false;});},250);
+  .catch(e=>{console.error(e);toast('CAPTURE FAILED');}).finally(()=>{CAPTURING=false;document.body.classList.remove('cap');});},250);
 }
 
 /* ═════ INIT ═════ */
@@ -1013,7 +1022,7 @@ setInterval(()=>{$('clock').textContent=now();},1000);
 window.addEventListener('resize',resizeBg);
 buildNav();
 const startId=(location.hash||'').slice(1);
-go(ITEMS.some(i=>i.id===startId)?startId:'badge');
+go(ITEMS.some(i=>i.id===startId)?startId:ITEMS[0].id);
 window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(h&&h!==CUR&&ITEMS.some(i=>i.id===h))go(h);});
 resizeBg();$('clock').textContent=now();runBoot();requestAnimationFrame(loop);
 </script>
